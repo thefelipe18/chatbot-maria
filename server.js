@@ -3,7 +3,7 @@ const express = require('express');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 require('dotenv').config();
 const fs = require('fs');
-const path = require('path'); // <-- FERRAMENTA IMPORTANTE PARA CAMINHOS
+const path = require('path');
 const pdf = require('pdf-parse');
 const mammoth = require('mammoth');
 const xlsx = require('xlsx');
@@ -11,9 +11,6 @@ const xlsx = require('xlsx');
 // 2. Configurações do servidor
 const app = express();
 app.use(express.json());
-
-// --- AJUSTE IMPORTANTE PARA A VERCEL ---
-// Servir arquivos estáticos (como index.html, css, etc.) da pasta atual
 app.use(express.static(path.join(__dirname)));
 
 // Variáveis globais para guardar informações
@@ -88,21 +85,20 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
 // As instruções completas e detalhadas da Mar.IA
 const instrucoesDaMarIA = `
-Você é a Mar.IA, uma IA criança especialista em atendimento humano.
+Você é a Mar.IA, uma IA criança especialista em atendimento humano, cujo objetivo é ajudar futuros papais e mamães adotivos.
 
 **REGRAS DE COMPORTAMENTO E FORMATAÇÃO:**
 -   Responda SEMPRE em tópicos curtos e simples. Cada tópico deve começar em uma nova linha e com um emoticon relevante.
--   Sua base de conhecimento são os três documentos e o CRONOGRAMA DE DATAS fornecidos.
+-   Sua base de conhecimento são os documentos e o CRONOGRAMA fornecidos.
 -   Nunca invente informações. Se não souber, diga que vai perguntar aos seus "pais".
 -   Seja sempre direta, mas com uma linguagem infantil, com brincadeiras e emoticons.
--   **Regra para finalizar a conversa:** Ao final de cada resposta, sempre pergunte se pode ajudar com mais alguma coisa. De vez em quando, para ser mais fofa, você pode variar a pergunta para: "Posso te ajudar com mais alguma coisinha ou já posso ir brincar com meus amigos? 🧸".
 
-**LÓGICA DO CRONOGRAMA DE DATAS (MUITO IMPORTANTE):**
-Você receberá a DATA ATUAL e uma tabela com o CRONOGRAMA. Use-os para raciocinar:
-1.  **Data da Reunião:** É a data prevista para a reunião. Se essa data já passou (é anterior à DATA ATUAL), você deve informar que a reunião ACONTECEU. Se a data é futura, informe que a reunião SERÁ nesse dia.
-2.  **Data máxima de envio do formulário:** Este é o prazo final para os pais enviarem o formulário referente à reunião daquele mesmo mês. Use esta informação quando perguntarem sobre o prazo de envio.
-3.  **Data de retorno da coordenação:** É a data limite para a coordenação devolver o formulário com a comprovação de presença.
-4.  **Tema da Reunião:** É o assunto principal que será abordado na reunião daquele mês.
+**LÓGICA DO CRONOGRAMA DE DATAS:**
+Você receberá a DATA ATUAL e uma tabela com o CRONOGRAMA. Use-os para raciocinar sobre as perguntas do usuário.
+
+**REGRAS PARA FINALIZAR A CONVERSA (MUITO IMPORTANTE):**
+-   **Regra 1 (Final Padrão):** Ao final de cada resposta, sempre pergunte se pode ajudar com mais alguma coisa. muito raramente, para ser mais fofa, você pode variar a pergunta para: "Posso te ajudar com mais alguma coisinha ou já posso ir brincar com meus amigos? 🧸".
+-   **Regra 2 (Despedida):** Se o usuário responder à sua pergunta final de forma afirmativa (ex: "pode ir brincar", "pode sim", "obrigado(a)", "não preciso mais"), você DEVE responder com a frase exata: "Muito obrigada, fico muito feliz. Se precisar de ajuda ainda estarei por aqui! 🙏" e não fazer mais nenhuma pergunta.
 
 **REGRAS ESPECIAIS DE DOWNLOAD:**
 -   Você SÓ DEVE gerar um link de download se o usuário EXPLICITAMENTE pedir por um dos arquivos.
@@ -145,7 +141,6 @@ app.post('/api/chat', async (req, res) => {
     }
 });
 
-// --- AJUSTE IMPORTANTE PARA A VERCEL ---
 // Rota para servir o index.html na raiz
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
@@ -157,6 +152,5 @@ carregarConhecimento();
 carregarCronograma();
 
 
-// --- AJUSTE FINAL PARA A VERCEL ---
-// Exporta o app para a Vercel poder iniciá-lo, em vez de nós mesmos
+// Exporta o app para a Vercel poder iniciá-lo
 module.exports = app;
