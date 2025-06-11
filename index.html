@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat com Mar.IA</title>
+    <!-- Importando uma fonte mais suave e amigável -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos gerais com o novo tema */
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f8f9fa;
+            background-image: radial-gradient(#dbe0e4 1px, transparent 1px);
+            background-size: 15px 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #495057;
+            overflow: hidden;
+        }
+
+        /* A janela principal do chat */
+        #chat-container {
+            width: 90%;
+            max-width: 700px; /* Aumentado um pouco para ocupar melhor o espaço */
+            height: 90vh;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #e9ecef;
+        }
+
+        /* CSS do chat (sem alterações) */
+        #chat-header { background-color: #a9d6e5; color: #2c3e50; padding: 15px 20px; font-size: 1.2em; font-weight: 700; }
+        #chat-history { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        .message { max-width: 75%; padding: 12px 18px; border-radius: 18px; line-height: 1.6; word-wrap: break-word; position: relative; white-space: pre-wrap; }
+        .bot-message { background-color: #f1f3f5; align-self: flex-start; border-top-left-radius: 4px; }
+        .user-message { background-color: #e3f2fd; align-self: flex-end; border-top-right-radius: 4px; }
+        .download-link { display: inline-block; margin-top: 10px; padding: 8px 12px; background-color: #83c5be; color: white; text-decoration: none; border-radius: 8px; font-weight: 700; transition: background-color 0.2s; }
+        .download-link:hover { background-color: #6aaa96; }
+        #input-area { display: flex; padding: 15px; background-color: #ffffff; border-top: 1px solid #e9ecef; align-items: center; }
+        #userInput { flex-grow: 1; border: 1px solid #dee2e6; border-radius: 20px; padding: 12px 18px; font-size: 1em; font-family: 'Nunito', sans-serif; }
+        #userInput:focus { outline: none; border-color: #a9d6e5; box-shadow: 0 0 0 2px rgba(169, 214, 229, 0.5); }
+        button { background-color: #a9d6e5; border: none; color: white; border-radius: 50%; width: 45px; height: 45px; margin-left: 10px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: background-color 0.2s; flex-shrink: 0; }
+        button:hover { background-color: #87c0d1; }
+    </style>
+</head>
+<body>
+
+    <!-- O CHAT (Sem a personagem ao lado) -->
+    <div id="chat-container">
+        <div id="chat-header">Mar.IA - Assistente de Adoção</div>
+        <div id="chat-history">
+            <div class="message bot-message">Olá! Eu sou a Mar.IA. 🧸 Como posso te ajudar a entender sobre o processo de adoção hoje?</div>
+        </div>
+        <div id="input-area">
+            <input type="text" id="userInput" placeholder="Digite sua dúvida aqui...">
+            <button onclick="sendMessage()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="stroke: white;"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const userInput = document.getElementById('userInput');
+        const chatHistory = document.getElementById('chat-history');
+
+        userInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        function appendMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', `${sender}-message`);
+            messageDiv.innerText = text; 
+
+            let processedText = messageDiv.innerHTML; 
+            processedText = processedText.replace(/\[DOWNLOAD_FORMULARIO\]/g, `<a href="/FORMULARIO_CONSIDERACOES_SOBRE_A_REUNIAO_VIVENCIAS DA_ESPERA.docx" download class="download-link">Baixar Formulário de Reunião Mensal</a>`);
+            processedText = processedText.replace(/\[DOWNLOAD_REGRAS\]/g, `<a href="/TUTORIAL_VIVENCIAS_DA ESPERA_VERSAO_03-09-2024.pdf" download class="download-link">Baixar Tutorial de Vivências</a>`);
+            processedText = processedText.replace(/\[DOWNLOAD_PORTARIA\]/g, `<a href="/PORTARIA_DE_HABILITACAO_PARA_ADOCAO.pdf" download class="download-link">Baixar Portaria de Habilitação</a>`);
+            
+            messageDiv.innerHTML = processedText;
+            chatHistory.appendChild(messageDiv);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const message = userInput.value;
+            if (!message.trim()) return;
+
+            appendMessage(message, 'user');
+            userInput.value = '';
+            userInput.disabled = true;
+            
+            const thinkingDiv = document.createElement('div');
+            thinkingDiv.classList.add('message', 'bot-message');
+            thinkingDiv.innerText = "Um momentinho, estou pensando...  ";
+            chatHistory.appendChild(thinkingDiv);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+
+                if (!response.ok) throw new Error('Falha na resposta da rede.');
+                
+                thinkingDiv.remove();
+                
+                const data = await response.json();
+                appendMessage(data.reply, 'bot');
+
+            } catch (error) {
+                console.error('Erro:', error);
+                thinkingDiv.remove();
+                appendMessage('Desculpe, algo deu errado. Tente novamente mais tarde.', 'bot');
+            } finally {
+                userInput.disabled = false;
+                userInput.focus();
+            }
+        }
+    </script>
+
+</body>
+</html>
