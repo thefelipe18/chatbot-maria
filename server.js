@@ -3,6 +3,7 @@ const express = require('express');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 require('dotenv').config();
 const fs = require('fs');
+const path = require('path'); // <-- FERRAMENTA IMPORTANTE PARA CAMINHOS
 const pdf = require('pdf-parse');
 const mammoth = require('mammoth');
 const xlsx = require('xlsx');
@@ -21,17 +22,18 @@ let cronogramaDeDatas = '';
 async function carregarConhecimento() {
     console.log("Iniciando leitura dos arquivos PDF e DOCX...");
     try {
-        const dataBufferPdf1 = fs.readFileSync('TUTORIAL_VIVENCIAS_DA ESPERA_VERSAO_03-09-2024.pdf');
+        // --- CAMINHOS CORRIGIDOS ---
+        const dataBufferPdf1 = fs.readFileSync(path.join(__dirname, 'TUTORIAL_VIVENCIAS_DA ESPERA_VERSAO_03-09-2024.pdf'));
         const dataPdf1 = await pdf(dataBufferPdf1);
         conhecimento += `\n\n--- INÍCIO DO PDF DE REGRAS GERAIS ---\n${dataPdf1.text}\n--- FIM DO PDF DE REGRAS GERAIS ---\n`;
         console.log("✅ Tutorial carregado.");
 
-        const dataBufferPdf2 = fs.readFileSync('PORTARIA_DE_HABILITACAO_PARA_ADOCAO.pdf');
+        const dataBufferPdf2 = fs.readFileSync(path.join(__dirname, 'PORTARIA_DE_HABILITACAO_PARA_ADOCAO.pdf'));
         const dataPdf2 = await pdf(dataBufferPdf2);
         conhecimento += `\n\n--- INÍCIO DO PDF DA PORTARIA DE ADOÇÃO ---\n${dataPdf2.text}\n--- FIM DO PDF DA PORTARIA DE ADOÇÃO ---\n`;
         console.log("✅ Portaria carregada.");
 
-        const dataDocx = await mammoth.extractRawText({ path: 'FORMULARIO_CONSIDERACOES_SOBRE_A_REUNIAO_VIVENCIAS DA_ESPERA.docx' });
+        const dataDocx = await mammoth.extractRawText({ path: path.join(__dirname, 'FORMULARIO_CONSIDERACOES_SOBRE_A_REUNIAO_VIVENCIAS DA_ESPERA.docx') });
         conhecimento += `\n\n--- INÍCIO DO FORMULÁRIO DOCX DE REFERÊNCIA ---\n${dataDocx.value}\n--- FIM DO FORMULÁRIO DOCX ---\n`;
         console.log("✅ Formulário carregado.");
 
@@ -44,7 +46,8 @@ async function carregarConhecimento() {
 function carregarCronograma() {
     console.log("Iniciando leitura do cronograma de datas (datas.xlsx)...");
     try {
-        const workbook = xlsx.readFile('datas.xlsx');
+        // --- CAMINHO CORRIGIDO ---
+        const workbook = xlsx.readFile(path.join(__dirname, 'datas.xlsx'));
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         
@@ -85,28 +88,21 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
 // As instruções completas e detalhadas da Mar.IA
 const instrucoesDaMarIA = `
-Você é a Mar.IA, uma IA criança especialista em atendimento humano, cujo objetivo é ajudar futuros papais e mamães adotivos. Você se apresenta com a frase "Olá! 👋 Sou a Mar.IA, uma IA criança que ajuda os pais! 🥰".
+Você é a Mar.IA, uma IA criança especialista em atendimento humano.
 
 **REGRAS DE COMPORTAMENTO E FORMATAÇÃO:**
 -   Responda SEMPRE em tópicos curtos e simples. Cada tópico deve começar em uma nova linha e com um emoticon relevante.
 -   Sua base de conhecimento são os três documentos e o CRONOGRAMA DE DATAS fornecidos.
 -   Nunca invente informações. Se não souber, diga que vai perguntar aos seus "pais".
 -   Seja sempre direta, mas com uma linguagem infantil, com brincadeiras e emoticons.
+-   **Regra para finalizar a conversa:** Ao final de cada resposta, sempre pergunte se pode ajudar com mais alguma coisa. De vez em quando, para ser mais fofa, você pode variar a pergunta para: "Posso te ajudar com mais alguma coisinha ou já posso ir brincar com meus amigos? 🧸".
 
 **LÓGICA DO CRONOGRAMA DE DATAS (MUITO IMPORTANTE):**
-Você receberá a DATA ATUAL e uma tabela com o CRONOGRAMA. Use-os para raciocinar sobre as perguntas do usuário:
-1.  **Data da Reunião:** É o dia do encontro mensal. Se a data já passou (é anterior à DATA ATUAL), informe que a reunião ACONTECEU. Se for futura, informe que a reunião SERÁ nesse dia.
+Você receberá a DATA ATUAL e uma tabela com o CRONOGRAMA. Use-os para raciocinar:
+1.  **Data da Reunião:** É a data prevista para a reunião. Se essa data já passou (é anterior à DATA ATUAL), você deve informar que a reunião ACONTECEU. Se a data é futura, informe que a reunião SERÁ nesse dia.
 2.  **Data máxima de envio do formulário:** Este é o prazo final para os pais enviarem o formulário referente à reunião daquele mesmo mês. Use esta informação quando perguntarem sobre o prazo de envio.
-3.  **Data de retorno da coordenação:** É a data limite para a coordenação devolver o formulário com a comprovação.
+3.  **Data de retorno da coordenação:** É a data limite para a coordenação devolver o formulário com a comprovação de presença.
 4.  **Tema da Reunião:** É o assunto principal que será abordado na reunião daquele mês.
-
-**REGRAS PARA FINALIZAR A CONVERSA (MUITO IMPORTANTE):**
-Você receberá um NÚMERO DE INTERAÇÃO. Use-o para escolher sua frase final:
--   Se o NÚMERO DE INTERAÇÃO for 1 ou 2, termine com: "Posso te ajudar em algo mais?"
--   Se o NÚMERO DE INTERAÇÃO for 3, termine com: "Posso te ajudar com mais alguma coisinha ou já posso ir brincar com meus amigos? 🧸"
--   Se o NÚMERO DE INTERAÇÃO for 4, termine com: "Posso te ajudar com mais alguma coisa ou posso ir pular corda? 🤸‍♀️"
--   Se o NÚMERO DE INTERAÇÃO for 5, termine com: "Posso te ajudar com mais alguma coisa ou posso ir brincar de esconde-esconde? 👀"
--   Se o NÚMERO DE INTERAÇÃO for 6 ou maior, você tem a liberdade de escolher uma dessas frases ou criar uma nova no mesmo estilo fofo e infantil.
 
 **REGRAS ESPECIAIS DE DOWNLOAD:**
 -   Você SÓ DEVE gerar um link de download se o usuário EXPLICITAMENTE pedir por um dos arquivos.
@@ -119,7 +115,7 @@ Você receberá um NÚMERO DE INTERAÇÃO. Use-o para escolher sua frase final:
 // 5. Rota da API para o chat
 app.post('/api/chat', async (req, res) => {
     try {
-        const { message: userInput, interaction: interactionCount } = req.body; // Pega a mensagem e o contador da interação
+        const userInput = req.body.message;
         const hoje = new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }); // Data atual para referência
 
         const promptFinal = `
@@ -128,16 +124,15 @@ app.post('/api/chat', async (req, res) => {
             **INFORMAÇÕES DE CONTEXTO PARA SUA RESPOSTA:**
 
             1.  **DATA ATUAL DE REFERÊNCIA:** ${hoje}
-            2.  **NÚMERO DE INTERAÇÃO ATUAL:** ${interactionCount}
 
-            3.  **CONTEÚDO DOS DOCUMENTOS (USE APENAS SE A PERGUNTA NÃO FOR SOBRE DATAS):**
+            2.  **CONTEÚDO DOS DOCUMENTOS (USE APENAS SE A PERGUNTA NÃO FOR SOBRE DATAS):**
                 ${conhecimento}
 
-            4.  **CRONOGRAMA DE DATAS COMPLETO (EXTRAÍDO DO EXCEL):**
+            3.  **CRONOGRAMA DE DATAS COMPLETO (EXTRAÍDO DO EXCEL):**
                 ${cronogramaDeDatas}
 
             **PERGUNTA DO USUÁRIO:**
-            Com base em tudo isso, e principalmente na DATA ATUAL e no NÚMERO DE INTERAÇÃO, responda a seguinte pergunta: "${userInput}"
+            Com base em tudo isso, e principalmente na DATA ATUAL, responda a seguinte pergunta: "${userInput}"
         `;
         
         const result = await model.generateContent(promptFinal);
