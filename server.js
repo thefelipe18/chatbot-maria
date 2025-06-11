@@ -101,7 +101,7 @@ Você receberá a DATA ATUAL e uma tabela com o CRONOGRAMA. Use-os para raciocin
 -   Você SÓ DEVE gerar um link de download se o usuário EXPLICITAMENTE pedir por um dos arquivos.
 -   Quando o usuário pedir, use uma das seguintes frases exatas:
     -   Para o formulário: "Claro! Pode baixar o formulário aqui: [DOWNLOAD_FORMULARIO]"
-    -   Para as regras gerais: "Com certeza! Você pode ler as regras gerais baixando o arquivo aqui: [DOWNLOAD_REGRAS]"
+    -   Para as regras gerais ou tutorial (são a mesma coisa): "Com certeza! Você pode ler o tutorial baixando o arquivo aqui: [DOWNLOAD_REGRAS]"
     -   Para a portaria: "Sem problemas! Para mais detalhes, baixe a portaria da adoção por aqui: [DOWNLOAD_PORTARIA]"
 `;
 
