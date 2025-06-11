@@ -10,9 +10,11 @@ const xlsx = require('xlsx');
 
 // 2. Configurações do servidor
 const app = express();
-const port = 3000;
 app.use(express.json());
-app.use(express.static('.'));
+
+// --- AJUSTE IMPORTANTE PARA A VERCEL ---
+// Servir arquivos estáticos (como index.html, css, etc.) da pasta atual
+app.use(express.static(path.join(__dirname)));
 
 // Variáveis globais para guardar informações
 let conhecimento = '';
@@ -22,7 +24,6 @@ let cronogramaDeDatas = '';
 async function carregarConhecimento() {
     console.log("Iniciando leitura dos arquivos PDF e DOCX...");
     try {
-        // --- CAMINHOS CORRIGIDOS ---
         const dataBufferPdf1 = fs.readFileSync(path.join(__dirname, 'TUTORIAL_VIVENCIAS_DA ESPERA_VERSAO_03-09-2024.pdf'));
         const dataPdf1 = await pdf(dataBufferPdf1);
         conhecimento += `\n\n--- INÍCIO DO PDF DE REGRAS GERAIS ---\n${dataPdf1.text}\n--- FIM DO PDF DE REGRAS GERAIS ---\n`;
@@ -46,7 +47,6 @@ async function carregarConhecimento() {
 function carregarCronograma() {
     console.log("Iniciando leitura do cronograma de datas (datas.xlsx)...");
     try {
-        // --- CAMINHO CORRIGIDO ---
         const workbook = xlsx.readFile(path.join(__dirname, 'datas.xlsx'));
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
@@ -145,13 +145,18 @@ app.post('/api/chat', async (req, res) => {
     }
 });
 
-// 6. Função para iniciar o servidor
-async function iniciarServidor() {
-    await carregarConhecimento(); 
-    carregarCronograma();
-    app.listen(port, () => {
-        console.log(`\n🚀 Servidor da Mar.IA rodando! Acesse http://localhost:${port} no seu navegador.`);
-    });
-}
+// --- AJUSTE IMPORTANTE PARA A VERCEL ---
+// Rota para servir o index.html na raiz
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
-iniciarServidor();
+
+// Carrega os dados ANTES de qualquer outra coisa
+carregarConhecimento(); 
+carregarCronograma();
+
+
+// --- AJUSTE FINAL PARA A VERCEL ---
+// Exporta o app para a Vercel poder iniciá-lo, em vez de nós mesmos
+module.exports = app;
