@@ -27,7 +27,7 @@
         /* A janela principal do chat */
         #chat-container {
             width: 90%;
-            max-width: 700px; /* Aumentado um pouco para ocupar melhor o espaço */
+            max-width: 700px;
             height: 90vh;
             background-color: #ffffff;
             border-radius: 12px;
@@ -59,7 +59,7 @@
     <div id="chat-container">
         <div id="chat-header">Mar.IA - Assistente de Adoção</div>
         <div id="chat-history">
-            <div class="message bot-message">Olá! Eu sou a Mar.IA. 🧸 Como posso te ajudar a entender sobre o processo de adoção hoje?</div>
+            <div class="message bot-message">Oi, meu nome é Mar.IA, sou uma IA criança que ajudará a tirar dúvidas sobre o processo de adoção, consigo gerar o tutorial de vivência da espera e também o formulário para preenchimento. Em que posso ajudar?</div>
         </div>
         <div id="input-area">
             <input type="text" id="userInput" placeholder="Digite sua dúvida aqui...">
@@ -99,13 +99,16 @@
             const message = userInput.value;
             if (!message.trim()) return;
 
+            // --- AJUSTE PARA MOBILE: MINIMIZA O TECLADO ---
+            userInput.blur(); // Remove o foco do campo de texto
+            
             appendMessage(message, 'user');
             userInput.value = '';
             userInput.disabled = true;
             
             const thinkingDiv = document.createElement('div');
             thinkingDiv.classList.add('message', 'bot-message');
-            thinkingDiv.innerText = "Um momentinho, estou pensando...  ";
+            thinkingDiv.innerText = "Um momentinho, estou pensando... 🤔";
             chatHistory.appendChild(thinkingDiv);
             chatHistory.scrollTop = chatHistory.scrollHeight;
 
@@ -129,7 +132,7 @@
                 appendMessage('Desculpe, algo deu errado. Tente novamente mais tarde.', 'bot');
             } finally {
                 userInput.disabled = false;
-                userInput.focus();
+                // Não focamos de volta de propósito, para o teclado continuar minimizado.
             }
         }
     </script>
