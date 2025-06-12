@@ -138,10 +138,11 @@
         const themeToggleButton = document.getElementById('theme-toggle');
         const initialMessage = document.getElementById('initial-message').innerText;
 
-        // --- "MEMÓRIA" DA CONVERSA ---
+        // --- "MEMÓRIA" E CONTADOR DE INTERAÇÃO ---
         let conversationHistory = [
             { role: 'model', text: initialMessage }
         ];
+        let interactionCount = 0;
 
         userInput.addEventListener('keydown', (event) => {
             if (event.key === 'Enter' && !event.shiftKey) {
@@ -169,6 +170,7 @@
             const message = userInput.value;
             if (!message.trim()) return;
 
+            interactionCount++;
             userInput.blur();
             
             appendMessageToScreen(message, 'user-message');
@@ -184,11 +186,10 @@
             chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
 
             try {
-                // --- Envia a mensagem E o histórico ---
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: message, history: conversationHistory })
+                    body: JSON.stringify({ message: message, history: conversationHistory, interaction: interactionCount })
                 });
 
                 if (!response.ok) throw new Error('Falha na resposta da rede.');
