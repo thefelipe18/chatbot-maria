@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* --- NOVO: Definição de Cores com Variáveis CSS --- */
+        /* Definição de Cores com Variáveis CSS */
         :root {
             --bg-body: #f8f9fa;
             --bg-pattern: #dbe0e4;
@@ -25,7 +25,7 @@
             --border-color: #e9ecef;
         }
 
-        /* --- NOVO: Tema Escuro (Dark Mode) --- */
+        /* Tema Escuro (Dark Mode) */
         body.dark-mode {
             --bg-body: #121212;
             --bg-pattern: #2a2a2a;
@@ -84,7 +84,7 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
-        /* --- NOVO: Botão de Tema --- */
+        /* Botão de Tema */
         #theme-toggle {
             background: none;
             border: none;
@@ -115,14 +115,14 @@
     <div id="chat-container">
         <div id="chat-header">
             <span>Mar.IA - Assistente de Adoção</span>
-            <!-- NOVO: Botão para trocar o tema -->
+            <!-- Botão para trocar o tema -->
             <button id="theme-toggle" onclick="toggleTheme()">
                 <!-- Ícone de Sol (Light Mode) -->
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5S14.76,7,12,7z M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3 S10.35,9,12,9z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1S11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.02-0.39-1.41,0 s-0.39,1.02,0,1.41l1.41,1.41c0.39,0.39,1.02,0.39,1.41,0s0.39-1.02,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.02-0.39-1.41,0s-0.39,1.02,0,1.41l1.41,1.41c0.39,0.39,1.02,0.39,1.41,0c0.39-0.39,0.39-1.02,0-1.41 L18.36,16.95z M19.78,5.99c0.39-0.39,0.39-1.02,0-1.41s-1.02-0.39-1.41,0l-1.41,1.41c-0.39,0.39-0.39,1.02,0,1.41 s1.02,0.39,1.41,0L19.78,5.99z M7.05,18.36c0.39-0.39,0.39-1.02,0-1.41s-1.02-0.39-1.41,0l-1.41,1.41 c-0.39,0.39-0.39,1.02,0,1.41s1.02,0.39,1.41,0L7.05,18.36z"/></svg>
             </button>
         </div>
         <div id="chat-history">
-            <div class="message bot-message">Oi, meu nome é Mar.IA, sou uma IA criança que ajudará a tirar dúvidas sobre o processo de adoção, consigo gerar o tutorial de vivência da espera e também o formulário para preenchimento. Em que posso ajudar?</div>
+            <div id="initial-message" class="message bot-message">Oi, meu nome é Mar.IA, sou uma IA criança que ajudará a tirar dúvidas sobre o processo de adoção, consigo gerar o tutorial de vivência da espera e também o formulário para preenchimento. Em que posso ajudar?</div>
         </div>
         <div id="input-area">
             <input type="text" id="userInput" placeholder="Digite sua dúvida aqui...">
@@ -134,8 +134,14 @@
 
     <script>
         const userInput = document.getElementById('userInput');
-        const chatHistory = document.getElementById('chat-history');
+        const chatHistoryDiv = document.getElementById('chat-history');
         const themeToggleButton = document.getElementById('theme-toggle');
+        const initialMessage = document.getElementById('initial-message').innerText;
+
+        // --- "MEMÓRIA" DA CONVERSA ---
+        let conversationHistory = [
+            { role: 'model', text: initialMessage }
+        ];
 
         userInput.addEventListener('keydown', (event) => {
             if (event.key === 'Enter' && !event.shiftKey) {
@@ -144,9 +150,9 @@
             }
         });
         
-        function appendMessage(text, sender) {
+        function appendMessageToScreen(text, senderClass) {
             const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message', `${sender}-message`);
+            messageDiv.classList.add('message', senderClass);
             messageDiv.innerText = text; 
 
             let processedText = messageDiv.innerHTML; 
@@ -155,8 +161,8 @@
             processedText = processedText.replace(/\[DOWNLOAD_PORTARIA\]/g, `<a href="/PORTARIA_DE_HABILITACAO_PARA_ADOCAO.pdf" download class="download-link">Baixar Portaria de Habilitação</a>`);
             
             messageDiv.innerHTML = processedText;
-            chatHistory.appendChild(messageDiv);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
+            chatHistoryDiv.appendChild(messageDiv);
+            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
         }
 
         async function sendMessage() {
@@ -165,40 +171,44 @@
 
             userInput.blur();
             
-            appendMessage(message, 'user');
+            appendMessageToScreen(message, 'user-message');
+            conversationHistory.push({ role: 'user', text: message });
+
             userInput.value = '';
             userInput.disabled = true;
             
             const thinkingDiv = document.createElement('div');
             thinkingDiv.classList.add('message', 'bot-message');
             thinkingDiv.innerText = "Um momentinho, estou pensando... 🤔";
-            chatHistory.appendChild(thinkingDiv);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
+            chatHistoryDiv.appendChild(thinkingDiv);
+            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
 
             try {
+                // --- Envia a mensagem E o histórico ---
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: message })
+                    body: JSON.stringify({ message: message, history: conversationHistory })
                 });
 
                 if (!response.ok) throw new Error('Falha na resposta da rede.');
                 
-                thinkingDiv.remove();
+                chatHistoryDiv.removeChild(thinkingDiv);
                 
                 const data = await response.json();
-                appendMessage(data.reply, 'bot');
+                appendMessageToScreen(data.reply, 'bot-message');
+                conversationHistory.push({ role: 'model', text: data.reply });
 
             } catch (error) {
                 console.error('Erro:', error);
-                thinkingDiv.remove();
-                appendMessage('Desculpe, algo deu errado. Tente novamente mais tarde.', 'bot');
+                chatHistoryDiv.removeChild(thinkingDiv);
+                appendMessageToScreen('Desculpe, algo deu errado. Tente novamente mais tarde.', 'bot-message');
             } finally {
                 userInput.disabled = false;
             }
         }
         
-        // --- NOVA LÓGICA DO TEMA ---
+        // --- LÓGICA DO TEMA ---
         const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5S14.76,7,12,7z M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3 S10.35,9,12,9z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1S11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.02-0.39-1.41,0 s-0.39,1.02,0,1.41l1.41,1.41c0.39,0.39,1.02,0.39,1.41,0s0.39-1.02,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.02-0.39-1.41,0s-0.39,1.02,0,1.41l1.41,1.41c0.39,0.39,1.02,0.39,1.41,0c0.39-0.39,0.39-1.02,0-1.41 L18.36,16.95z M19.78,5.99c0.39-0.39,0.39-1.02,0-1.41s-1.02-0.39-1.41,0l-1.41,1.41c-0.39,0.39-0.39,1.02,0,1.41 s1.02,0.39,1.41,0L19.78,5.99z M7.05,18.36c0.39-0.39,0.39-1.02,0-1.41s-1.02-0.39-1.41,0l-1.41,1.41 c-0.39,0.39-0.39,1.02,0,1.41s1.02,0.39,1.41,0L7.05,18.36z"/></svg>`;
         const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" viewBox="0 0 24 24"><path d="M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9c0.35,0,0.69-0.02,1.03-0.06c-0.95-0.88-1.53-2.14-1.53-3.51 c0-2.76,2.24-5,5-5c1.1,0,2.11,0.36,2.94,0.96C19.46,7.5,16.08,4,12,4c-0.74,0-1.45,0.1-2.13,0.28 c0.4-0.82,0.63-1.74,0.63-2.71C10.5,3.4,11.23,3,12,3z"/></svg>`;
 
