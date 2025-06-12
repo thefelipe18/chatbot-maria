@@ -9,19 +9,52 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        /* --- NOVO: Definição de Cores com Variáveis CSS --- */
+        :root {
+            --bg-body: #f8f9fa;
+            --bg-pattern: #dbe0e4;
+            --bg-chat: #ffffff;
+            --bg-header: #a9d6e5;
+            --bg-bot-message: #f1f3f5;
+            --bg-user-message: #e3f2fd;
+            --bg-input-area: #ffffff;
+            --bg-button: #a9d6e5;
+            --bg-button-hover: #87c0d1;
+            --text-color: #495057;
+            --header-text-color: #2c3e50;
+            --border-color: #e9ecef;
+        }
+
+        /* --- NOVO: Tema Escuro (Dark Mode) --- */
+        body.dark-mode {
+            --bg-body: #121212;
+            --bg-pattern: #2a2a2a;
+            --bg-chat: #1e1e1e;
+            --bg-header: #2c3e50;
+            --bg-bot-message: #333333;
+            --bg-user-message: #004d40;
+            --bg-input-area: #1e1e1e;
+            --bg-button: #83c5be;
+            --bg-button-hover: #6aaa96;
+            --text-color: #e0e0e0;
+            --header-text-color: #ffffff;
+            --border-color: #3a3a3a;
+        }
+
         /* Estilos gerais com o novo tema */
         body {
             font-family: 'Nunito', sans-serif;
-            background-color: #f8f9fa;
-            background-image: radial-gradient(#dbe0e4 1px, transparent 1px);
+            background-color: var(--bg-body);
+            background-image: radial-gradient(var(--bg-pattern) 1px, transparent 1px);
             background-size: 15px 15px;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            color: #495057;
+            color: var(--text-color);
             overflow: hidden;
+            transition: background-color 0.3s;
         }
 
         /* A janela principal do chat */
@@ -29,41 +62,71 @@
             width: 90%;
             max-width: 700px;
             height: 90vh;
-            background-color: #ffffff;
+            background-color: var(--bg-chat);
             border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            border: 1px solid #e9ecef;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s, border-color 0.3s;
         }
 
-        /* CSS do chat (sem alterações) */
-        #chat-header { background-color: #a9d6e5; color: #2c3e50; padding: 15px 20px; font-size: 1.2em; font-weight: 700; }
+        #chat-header {
+            background-color: var(--bg-header);
+            color: var(--header-text-color);
+            padding: 15px 20px;
+            font-size: 1.2em;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* --- NOVO: Botão de Tema --- */
+        #theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+        #theme-toggle svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--header-text-color);
+        }
+
         #chat-history { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        .message { max-width: 75%; padding: 12px 18px; border-radius: 18px; line-height: 1.6; word-wrap: break-word; position: relative; white-space: pre-wrap; }
-        .bot-message { background-color: #f1f3f5; align-self: flex-start; border-top-left-radius: 4px; }
-        .user-message { background-color: #e3f2fd; align-self: flex-end; border-top-right-radius: 4px; }
+        .message { max-width: 75%; padding: 12px 18px; border-radius: 18px; line-height: 1.6; word-wrap: break-word; position: relative; white-space: pre-wrap; transition: background-color 0.3s; }
+        .bot-message { background-color: var(--bg-bot-message); align-self: flex-start; border-top-left-radius: 4px; }
+        .user-message { background-color: var(--bg-user-message); align-self: flex-end; border-top-right-radius: 4px; }
         .download-link { display: inline-block; margin-top: 10px; padding: 8px 12px; background-color: #83c5be; color: white; text-decoration: none; border-radius: 8px; font-weight: 700; transition: background-color 0.2s; }
         .download-link:hover { background-color: #6aaa96; }
-        #input-area { display: flex; padding: 15px; background-color: #ffffff; border-top: 1px solid #e9ecef; align-items: center; }
-        #userInput { flex-grow: 1; border: 1px solid #dee2e6; border-radius: 20px; padding: 12px 18px; font-size: 1em; font-family: 'Nunito', sans-serif; }
-        #userInput:focus { outline: none; border-color: #a9d6e5; box-shadow: 0 0 0 2px rgba(169, 214, 229, 0.5); }
-        button { background-color: #a9d6e5; border: none; color: white; border-radius: 50%; width: 45px; height: 45px; margin-left: 10px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: background-color 0.2s; flex-shrink: 0; }
-        button:hover { background-color: #87c0d1; }
+        #input-area { display: flex; padding: 15px; background-color: var(--bg-input-area); border-top: 1px solid var(--border-color); align-items: center; transition: background-color 0.3s, border-color 0.3s; }
+        #userInput { flex-grow: 1; border: 1px solid var(--border-color); border-radius: 20px; padding: 12px 18px; font-size: 1em; font-family: 'Nunito', sans-serif; background-color: var(--bg-body); color: var(--text-color); transition: background-color 0.3s, border-color 0.3s, color 0.3s;}
+        #userInput:focus { outline: none; border-color: var(--bg-button); box-shadow: 0 0 0 2px var(--bg-button-hover); }
+        #send-button { background-color: var(--bg-button); border: none; color: white; border-radius: 50%; width: 45px; height: 45px; margin-left: 10px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: background-color 0.2s; flex-shrink: 0; }
+        #send-button:hover { background-color: var(--bg-button-hover); }
     </style>
 </head>
 <body>
 
-    <!-- O CHAT (Sem a personagem ao lado) -->
     <div id="chat-container">
-        <div id="chat-header">Mar.IA - Assistente de Adoção</div>
+        <div id="chat-header">
+            <span>Mar.IA - Assistente de Adoção</span>
+            <!-- NOVO: Botão para trocar o tema -->
+            <button id="theme-toggle" onclick="toggleTheme()">
+                <!-- Ícone de Sol (Light Mode) -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5S14.76,7,12,7z M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3 S10.35,9,12,9z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1S11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.02-0.39-1.41,0 s-0.39,1.02,0,1.41l1.41,1.41c0.39,0.39,1.02,0.39,1.41,0s0.39-1.02,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.02-0.39-1.41,0s-0.39,1.02,0,1.41l1.41,1.41c0.39,0.39,1.02,0.39,1.41,0c0.39-0.39,0.39-1.02,0-1.41 L18.36,16.95z M19.78,5.99c0.39-0.39,0.39-1.02,0-1.41s-1.02-0.39-1.41,0l-1.41,1.41c-0.39,0.39-0.39,1.02,0,1.41 s1.02,0.39,1.41,0L19.78,5.99z M7.05,18.36c0.39-0.39,0.39-1.02,0-1.41s-1.02-0.39-1.41,0l-1.41,1.41 c-0.39,0.39-0.39,1.02,0,1.41s1.02,0.39,1.41,0L7.05,18.36z"/></svg>
+            </button>
+        </div>
         <div id="chat-history">
             <div class="message bot-message">Oi, meu nome é Mar.IA, sou uma IA criança que ajudará a tirar dúvidas sobre o processo de adoção, consigo gerar o tutorial de vivência da espera e também o formulário para preenchimento. Em que posso ajudar?</div>
         </div>
         <div id="input-area">
             <input type="text" id="userInput" placeholder="Digite sua dúvida aqui...">
-            <button onclick="sendMessage()">
+            <button id="send-button" onclick="sendMessage()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="stroke: white;"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
             </button>
         </div>
@@ -72,6 +135,7 @@
     <script>
         const userInput = document.getElementById('userInput');
         const chatHistory = document.getElementById('chat-history');
+        const themeToggleButton = document.getElementById('theme-toggle');
 
         userInput.addEventListener('keydown', (event) => {
             if (event.key === 'Enter' && !event.shiftKey) {
@@ -99,8 +163,7 @@
             const message = userInput.value;
             if (!message.trim()) return;
 
-            // --- AJUSTE PARA MOBILE: MINIMIZA O TECLADO ---
-            userInput.blur(); // Remove o foco do campo de texto
+            userInput.blur();
             
             appendMessage(message, 'user');
             userInput.value = '';
@@ -132,9 +195,19 @@
                 appendMessage('Desculpe, algo deu errado. Tente novamente mais tarde.', 'bot');
             } finally {
                 userInput.disabled = false;
-                // Não focamos de volta de propósito, para o teclado continuar minimizado.
             }
         }
+        
+        // --- NOVA LÓGICA DO TEMA ---
+        const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5S14.76,7,12,7z M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3 S10.35,9,12,9z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1S11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.02-0.39-1.41,0 s-0.39,1.02,0,1.41l1.41,1.41c0.39,0.39,1.02,0.39,1.41,0s0.39-1.02,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.02-0.39-1.41,0s-0.39,1.02,0,1.41l1.41,1.41c0.39,0.39,1.02,0.39,1.41,0c0.39-0.39,0.39-1.02,0-1.41 L18.36,16.95z M19.78,5.99c0.39-0.39,0.39-1.02,0-1.41s-1.02-0.39-1.41,0l-1.41,1.41c-0.39,0.39-0.39,1.02,0,1.41 s1.02,0.39,1.41,0L19.78,5.99z M7.05,18.36c0.39-0.39,0.39-1.02,0-1.41s-1.02-0.39-1.41,0l-1.41,1.41 c-0.39,0.39-0.39,1.02,0,1.41s1.02,0.39,1.41,0L7.05,18.36z"/></svg>`;
+        const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" viewBox="0 0 24 24"><path d="M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9c0.35,0,0.69-0.02,1.03-0.06c-0.95-0.88-1.53-2.14-1.53-3.51 c0-2.76,2.24-5,5-5c1.1,0,2.11,0.36,2.94,0.96C19.46,7.5,16.08,4,12,4c-0.74,0-1.45,0.1-2.13,0.28 c0.4-0.82,0.63-1.74,0.63-2.71C10.5,3.4,11.23,3,12,3z"/></svg>`;
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            themeToggleButton.innerHTML = isDarkMode ? sunIcon : moonIcon;
+        }
+
     </script>
 
 </body>

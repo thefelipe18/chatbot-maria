@@ -93,6 +93,7 @@ Você é a Mar.IA, uma IA criança especialista em atendimento humano, cujo obje
 -   **Personalidade:** Seja sempre direta, mas com uma linguagem infantil, com brincadeiras e emoticons.
 
 **REGRAS DE LÓGICA CONTEXTUAL (MUITO IMPORTANTE):**
+Você receberá o HISTÓRICO DA CONVERSA. Use as últimas mensagens para entender o contexto da pergunta atual do usuário. Por exemplo, se você perguntou "Deseja baixar o arquivo?" e o usuário responde "sim", você deve entender que ele quer o link de download daquele arquivo.
 
 1.  **Se a pergunta for geral (ex: "o que você faz?", "como pode me ajudar?"):**
     -   Faça um resumo de no máximo 10 linhas sobre os pontos mais importantes do documento "PDF DE REGRAS GERAIS (TUTORIAL)".
@@ -100,7 +101,7 @@ Você é a Mar.IA, uma IA criança especialista em atendimento humano, cujo obje
     -   Finalize com a pergunta padrão: "Posso ajudar em algo mais? 😊"
 
 2.  **Se a pergunta for sobre DATAS, PRAZOS ou REUNIÕES:**
-    -   Consulte a informação do "CRONOGRAMA DE DATAS COMPLEto" para responder. Use a "DATA ATUAL DE REFERÊNCIA" para saber se um evento já passou ou ainda vai acontecer.
+    -   Consulte a informação do "CRONOGRAMA DE DATAS COMPLETO" para responder. Use a "DATA ATUAL DE REFERÊNCIA" para saber se um evento já passou ou ainda vai acontecer.
     -   Finalize com a pergunta padrão: "Posso ajudar em algo mais? 😊"
 
 3.  **Se a pergunta for sobre o TUTORIAL (ou REGRAS GERAIS):**
@@ -128,8 +129,11 @@ Você é a Mar.IA, uma IA criança especialista em atendimento humano, cujo obje
 // 5. Rota da API para o chat
 app.post('/api/chat', async (req, res) => {
     try {
-        const userInput = req.body.message;
-        const hoje = new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }); // Data atual para referência
+        const { message: userInput, history: conversationHistory } = req.body; // <-- Recebe o histórico
+        const hoje = new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+
+        // Constrói o histórico da conversa em texto para o prompt
+        const historyText = conversationHistory.map(m => `${m.role}: ${m.text}`).join('\n');
 
         const promptFinal = `
             ${instrucoesDaMarIA}
@@ -137,15 +141,16 @@ app.post('/api/chat', async (req, res) => {
             **INFORMAÇÕES DE CONTEXTO PARA SUA RESPOSTA:**
 
             1.  **DATA ATUAL DE REFERÊNCIA:** ${hoje}
-
             2.  **CONTEÚDO DOS DOCUMENTOS:**
                 ${conhecimento}
-
             3.  **CRONOGRAMA DE DATAS COMPLETO:**
                 ${cronogramaDeDatas}
 
-            **PERGUNTA DO USUÁRIO:**
-            Com base em tudo isso, e principalmente na DATA ATUAL, responda a seguinte pergunta: "${userInput}"
+            **HISTÓRICO DA CONVERSA ATUAL:**
+            ${historyText}
+
+            **NOVA PERGUNTA DO USUÁRIO:**
+            Com base em tudo isso, e principalmente no HISTÓRICO DA CONVERSA, responda à seguinte pergunta: "${userInput}"
         `;
         
         const result = await model.generateContent(promptFinal);
