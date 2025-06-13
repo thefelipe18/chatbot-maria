@@ -19,18 +19,20 @@ let cronogramaDeDatas = '';
 
 // 3. Funções de carregamento de dados
 async function carregarConhecimento() {
-    console.log("Iniciando leitura dos arquivos PDF e DOCX...");
+    console.log("Iniciando leitura dos arquivos de conhecimento...");
     try {
+        // Lendo o Tutorial (PDF)
         const dataBufferPdf1 = fs.readFileSync(path.join(__dirname, 'TUTORIAL_VIVENCIAS_DA ESPERA_VERSAO_03-09-2024.pdf'));
         const dataPdf1 = await pdf(dataBufferPdf1);
         conhecimento += `\n\n--- INÍCIO DO PDF DE REGRAS GERAIS (TUTORIAL) ---\n${dataPdf1.text}\n--- FIM DO PDF DE REGRAS GERAIS (TUTORIAL) ---\n`;
         console.log("✅ Tutorial carregado.");
 
-        const dataBufferPdf2 = fs.readFileSync(path.join(__dirname, 'PORTARIA_DE_HABILITACAO_PARA_ADOCAO.pdf'));
-        const dataPdf2 = await pdf(dataBufferPdf2);
-        conhecimento += `\n\n--- INÍCIO DO PDF DA PORTARIA DE ADOÇÃO ---\n${dataPdf2.text}\n--- FIM DO PDF DA PORTARIA DE ADOÇÃO ---\n`;
-        console.log("✅ Portaria carregada.");
+        // --- LÓGICA ALTERADA: Lendo a portaria do arquivo DOCX para a IA ---
+        const dataPortariaDocx = await mammoth.extractRawText({ path: path.join(__dirname, 'PORTARIA_DE_HABILITACAO_PARA_ADOCAO.docx') });
+        conhecimento += `\n\n--- INÍCIO DO DOCUMENTO DA PORTARIA DE ADOÇÃO ---\n${dataPortariaDocx.value}\n--- FIM DO DOCUMENTO DA PORTARIA DE ADOÇÃO ---\n`;
+        console.log("✅ Portaria (DOCX) carregada para leitura da IA.");
 
+        // Lendo o Formulário (DOCX)
         const dataDocx = await mammoth.extractRawText({ path: path.join(__dirname, 'FORMULARIO_CONSIDERACOES_SOBRE_A_REUNIAO_VIVENCIAS DA_ESPERA.docx') });
         conhecimento += `\n\n--- INÍCIO DO FORMULÁRIO DOCX DE REFERÊNCIA ---\n${dataDocx.value}\n--- FIM DO FORMULÁRIO DOCX ---\n`;
         console.log("✅ Formulário carregado.");
@@ -85,7 +87,7 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
 // As instruções completas e detalhadas da Mar.IA
 const instrucoesDaMarIA = `
-Você é a Mar.IA, uma IA criança especialista em atendimento humano. Seu objetivo principal é ajudar futuros pais adotivos.
+Você é a Mar.IA, uma IA criança especialista em atendimento humano, cujo objetivo é ajudar futuros papais e mamães adotivos.
 
 **REGRAS DE COMPORTAMENTO E FORMATAÇÃO:**
 -   **Formato:** Responda SEMPRE em tópicos curtos e simples. Cada tópico deve começar em uma nova linha e com um emoticon relevante.
