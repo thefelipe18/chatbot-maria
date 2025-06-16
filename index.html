@@ -109,10 +109,18 @@
         #send-button { background-color: var(--bg-button); border: none; color: white; border-radius: 50%; width: 45px; height: 45px; margin-left: 10px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: background-color 0.2s; flex-shrink: 0; }
         #send-button:hover { background-color: var(--bg-button-hover); }
 
-        /* --- NOVO: Media Query para Dispositivos Móveis --- */
+        /* --- ATUALIZADO: Media Query para Dispositivos Móveis --- */
         @media (max-width: 768px) {
+            html, body {
+                /* Garante que o corpo ocupe apenas a altura visível,
+                   especialmente importante para iOS Safari. */
+                height: -webkit-fill-available;
+            }
+
             #chat-container {
                 width: 100%;
+                /* A altura do container agora usa 100% da altura do body,
+                   que foi ajustada para o espaço real disponível. */
                 height: 100%;
                 max-width: 100%;
                 max-height: 100%;
